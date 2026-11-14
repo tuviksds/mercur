@@ -74,7 +74,7 @@ const toFormData = (payload: Record<string, any>): FormData => {
 };
 
 export function createClient(options: ClientOptions) {
-    const { baseUrl, fetchOptions: defaultFetchOptions, headers: resolveHeaders, auth, onUnauthorized } = options;
+    const { baseUrl, fetchOptions: defaultFetchOptions, headers: resolveHeaders, auth, onUnauthorized, onResponse } = options;
 
     return createRecursiveProxy(async (path, args) => {
         const action = path.pop() as ActionType;
@@ -148,6 +148,7 @@ export function createClient(options: ClientOptions) {
                     message?: string;
                     code?: string;
                 };
+                onResponse?.({ path: url.pathname, method, status: response.status });
                 if (response.status === 401) {
                     const message = jsonError.message ?? response.statusText;
                     if (onUnauthorized) {
@@ -165,7 +166,9 @@ export function createClient(options: ClientOptions) {
             }
 
             const isJsonRequest = headers.get("accept")?.includes("application/json");
-            return isJsonRequest ? await response.json() : response;
+            const result = isJsonRequest ? await response.json() : response;
+            onResponse?.({ path: url.pathname, method, status: response.status });
+            return result;
         });
     })
 }

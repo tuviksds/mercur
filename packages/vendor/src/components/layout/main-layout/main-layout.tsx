@@ -46,6 +46,7 @@ import {
   type NavItemGroup,
   useExtension,
   usePermissions,
+  useActionLocks,
   type CoreNavItem,
 } from "@mercurjs/dashboard-shared";
 import {
@@ -263,6 +264,7 @@ const StoreList = ({ currentSellerId }: { currentSellerId: string }) => {
   const { seller_member } = useMe();
   const { seller_members } = useSellers();
   const { mutateAsync: selectSeller } = useSelectSeller();
+  const createLock = useActionLocks("seller", undefined)("create");
 
   const handleSelect = async (sellerId: string) => {
     if (sellerId === currentSellerId) return;
@@ -306,6 +308,7 @@ const StoreList = ({ currentSellerId }: { currentSellerId: string }) => {
       )}
       {!!seller_members?.length && <DropdownMenu.Separator />}
       <DropdownMenu.Item
+        disabled={!!createLock}
         onClick={() =>
           navigate("/onboarding", {
             state: { email: seller_member?.member.email },
@@ -317,6 +320,7 @@ const StoreList = ({ currentSellerId }: { currentSellerId: string }) => {
         <Text size="small" weight="plus" leading="compact">
           {t("storeSelect.addNewStore")}
         </Text>
+        {createLock && <Text size="xsmall">{createLock}</Text>}
       </DropdownMenu.Item>
     </>
   );

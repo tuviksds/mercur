@@ -6,6 +6,8 @@ export type ActionType = "query" | "mutate" | "delete";
 export type ClientOptions = {
     baseUrl: string;
     fetchOptions?: RequestInit;
+    /** Сообщает о результате HTTP без передачи заголовков и содержимого ответа. */
+    onResponse?: (response: { path: string; method: string; status: number }) => void;
     /**
      * How requests authenticate: a token store (sent as a bearer token), one
      * scheme, or several. Resolved on every request, so a token set after the

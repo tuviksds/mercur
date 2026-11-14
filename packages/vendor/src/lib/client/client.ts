@@ -7,12 +7,17 @@ import { clearAuthToken, getAuthHeaders } from './auth-token'
 
 export const backendUrl = config.backendUrl ?? 'http://localhost:9000'
 
+/** Сообщает о результате HTTP и позволяет заменить переход при отказе входа. */
+const notifyResponse = (detail: { path: string; method: string; status: number }) =>
+  window.dispatchEvent(new CustomEvent("mercur:http-response", { detail, cancelable: detail.status === 401 }))
+
 export const sdk: InferClient<Routes> = createClient({
   baseUrl: backendUrl,
   fetchOptions: {
-    credentials: 'omit',
+    credentials: 'same-origin',
   },
   auth: vendorAuth(),
+  onResponse: notifyResponse,
 })
 
 export const fetchQuery = async (
@@ -57,7 +62,7 @@ export const fetchQuery = async (
     `${backendUrl}${url}${params ? `?${params}` : ''}`,
     {
       method,
-      credentials: 'omit',
+      credentials: 'same-origin',
       headers: {
         'Content-Type': 'application/json',
         ...(await getAuthHeaders()),
@@ -69,11 +74,14 @@ export const fetchQuery = async (
 
   if (!response.ok) {
     const errorData = await response.json()
+    const useDefault = notifyResponse({ path: new URL(response.url).pathname, method, status: response.status })
 
     if (response.status === 401) {
       clearAuthToken()
-      window.location.href = `${assetUrl('/login')}?reason=Unauthorized`
-      return
+      if (useDefault) {
+        window.location.href = `${assetUrl('/login')}?reason=Unauthorized`
+        return
+      }
     }
 
     const error = new Error(errorData.message || 'Server error')
@@ -81,5 +89,7 @@ export const fetchQuery = async (
     throw error
   }
 
-  return response.json()
+  const data = await response.json()
+  notifyResponse({ path: new URL(response.url).pathname, method, status: response.status })
+  return data
 }
