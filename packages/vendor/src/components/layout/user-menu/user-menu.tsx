@@ -256,6 +256,7 @@ const Logout = () => {
   const { mutateAsync: logoutMutation } = useLogout();
 
   const handleLogout = async () => {
+    window.dispatchEvent(new Event("mercur:logout-requested"));
     await logoutMutation(undefined, {
       onSuccess: () => {
         /**

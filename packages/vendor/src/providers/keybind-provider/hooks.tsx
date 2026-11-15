@@ -105,6 +105,7 @@ export const useGlobalShortcuts = () => {
   const permissions = useContext(PermissionsContext);
 
   const handleLogout = async () => {
+    window.dispatchEvent(new Event("mercur:logout-requested"));
     await mutateAsync(undefined, {
       onSuccess: () => {
         queryClient.clear();

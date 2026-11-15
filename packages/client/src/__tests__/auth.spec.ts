@@ -120,4 +120,27 @@ describe("createClient auth", () => {
         expect(onUnauthorized).toHaveBeenCalledWith({ status: 401, message: "Unauthorized" });
         expect(adminTokenStore.get()).toBe("kept");
     });
+
+    it("сообщает об успешном ответе, сохраняя результат запроса", async () => {
+        vi.stubGlobal("fetch", fetchMock.mockResolvedValue(json(200, { stores: [] })));
+        const onResponse = vi.fn();
+        const client = createClient({ baseUrl: "http://api.test", onResponse }) as any;
+
+        await expect(client.vendor.stores.query()).resolves.toEqual({ stores: [] });
+        expect(onResponse).toHaveBeenCalledOnce();
+        expect(onResponse).toHaveBeenCalledWith({ path: "/vendor/stores", method: "GET", status: 200 });
+    });
+
+    it.each([401, 403, 500])("сообщает об отказе %s, сохраняя ошибку и очистку входа", async (status) => {
+        vi.stubGlobal("fetch", fetchMock.mockResolvedValue(json(status, { message: "Refused" })));
+        const store = createTokenStore("vendor", memory());
+        store.set("token");
+        const onResponse = vi.fn();
+        const client = createClient({ baseUrl: "http://api.test", auth: store, onResponse }) as any;
+
+        await expect(client.vendor.stores.query()).rejects.toMatchObject({ status, message: "Refused" });
+        expect(onResponse).toHaveBeenCalledOnce();
+        expect(onResponse).toHaveBeenCalledWith({ path: "/vendor/stores", method: "GET", status });
+        expect(store.get()).toBe(status === 401 ? null : "token");
+    });
 });

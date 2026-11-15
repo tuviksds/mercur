@@ -4,7 +4,7 @@ import { Avatar, Heading, StatusBadge, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 
-import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared";
+import { DisplayExtensionZone, DisplayField, useActionLocks } from "@mercurjs/dashboard-shared";
 
 import AvatarBox from "@components/common/logo-box/avatar-box";
 import { AuthLayout } from "@components/layout/auth-layout";
@@ -59,6 +59,7 @@ const StoreSelectList = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { mutateAsync: selectSeller } = useSelectSeller();
+  const createLock = useActionLocks("seller", undefined)("create");
 
   const handleSelect = async (sellerId: string) => {
     await selectSeller({ seller_id: sellerId });
@@ -120,13 +121,15 @@ const StoreSelectList = ({
           );
         })}
       <button
+        disabled={!!createLock}
         onClick={() => navigate("/onboarding", { state: { email } })}
-        className="hover:bg-ui-bg-base-hover transition-fg flex items-center justify-center gap-x-2 rounded-b-lg px-4 py-3"
+        className="enabled:hover:bg-ui-bg-base-hover transition-fg flex items-center justify-center gap-x-2 rounded-b-lg px-4 py-3 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <Plus className="text-ui-fg-muted" />
         <Text size="small" weight="plus" leading="compact">
           {t("storeSelect.addNewStore")}
         </Text>
+        {createLock && <Text size="xsmall">{createLock}</Text>}
       </button>
     </div>
   );
