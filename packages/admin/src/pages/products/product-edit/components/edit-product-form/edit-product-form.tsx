@@ -1,6 +1,6 @@
 import { HttpTypes } from "@medusajs/types";
 import { Button, Input, Select, Text, toast } from "@medusajs/ui";
-import { RichTextEditor, plainTextToHtml } from "@mercurjs/dashboard-shared";
+import { ExtendableFormField, RichTextEditor, plainTextToHtml } from "@mercurjs/dashboard-shared";
 
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
@@ -199,48 +199,50 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
                   );
                 }}
               />
-              <Form.Field
-                control={form.control}
-                name="handle"
-                render={({ field }) => {
-                  return (
-                    <Form.Item data-testid="product-edit-form-handle-item">
-                      <Form.Label data-testid="product-edit-form-handle-label">
-                        {t("fields.handle")}
-                      </Form.Label>
-                      <Form.Control data-testid="product-edit-form-handle-control">
-                        <div
-                          className="relative"
-                          data-testid="product-edit-form-handle-wrapper"
-                        >
+              <ExtendableFormField model="product" zone="edit" id="handle" control={form.control}>
+                <Form.Field
+                  control={form.control}
+                  name="handle"
+                  render={({ field }) => {
+                    return (
+                      <Form.Item data-testid="product-edit-form-handle-item">
+                        <Form.Label data-testid="product-edit-form-handle-label">
+                          {t("fields.handle")}
+                        </Form.Label>
+                        <Form.Control data-testid="product-edit-form-handle-control">
                           <div
-                            className="absolute inset-y-0 left-0 z-10 flex w-8 items-center justify-center border-r"
-                            data-testid="product-edit-form-handle-prefix"
+                            className="relative"
+                            data-testid="product-edit-form-handle-wrapper"
                           >
-                            <Text
-                              className="text-ui-fg-muted"
-                              size="small"
-                              leading="compact"
-                              weight="plus"
-                              data-testid="product-edit-form-handle-prefix-text"
+                            <div
+                              className="absolute inset-y-0 left-0 z-10 flex w-8 items-center justify-center border-r"
+                              data-testid="product-edit-form-handle-prefix"
                             >
-                              /
-                            </Text>
+                              <Text
+                                className="text-ui-fg-muted"
+                                size="small"
+                                leading="compact"
+                                weight="plus"
+                                data-testid="product-edit-form-handle-prefix-text"
+                              >
+                                /
+                              </Text>
+                            </div>
+                            <div data-testid="product-edit-form-handle-input-wrapper">
+                              <Input
+                                {...field}
+                                className="pl-10"
+                                data-testid="product-edit-form-handle-input"
+                              />
+                            </div>
                           </div>
-                          <div data-testid="product-edit-form-handle-input-wrapper">
-                            <Input
-                              {...field}
-                              className="pl-10"
-                              data-testid="product-edit-form-handle-input"
-                            />
-                          </div>
-                        </div>
-                      </Form.Control>
-                      <Form.ErrorMessage data-testid="product-edit-form-handle-error" />
-                    </Form.Item>
-                  );
-                }}
-              />
+                        </Form.Control>
+                        <Form.ErrorMessage data-testid="product-edit-form-handle-error" />
+                      </Form.Item>
+                    );
+                  }}
+                />
+              </ExtendableFormField>
               <Form.Field
                 control={form.control}
                 name="material"

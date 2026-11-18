@@ -12,6 +12,7 @@ import { useFeatureFlags, useUpdateProduct } from "@hooks/api";
 import { KeyboundForm } from "@components/utilities/keybound-form";
 import { uploadRichTextImage } from "@lib/upload-rich-text-image";
 import {
+  ExtendableFormField,
   FormExtensionZone,
   RichTextEditor,
   plainTextToHtml,
@@ -167,33 +168,35 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
                   );
                 }}
               />
-              <Form.Field
-                control={form.control}
-                name="handle"
-                render={({ field }) => {
-                  return (
-                    <Form.Item>
-                      <Form.Label>{t("fields.handle")}</Form.Label>
-                      <Form.Control>
-                        <div className="relative">
-                          <div className="absolute inset-y-0 left-0 z-10 flex w-8 items-center justify-center border-r">
-                            <Text
-                              className="text-ui-fg-muted"
-                              size="small"
-                              leading="compact"
-                              weight="plus"
-                            >
-                              /
-                            </Text>
+              <ExtendableFormField model="product" zone="edit" id="handle" control={form.control}>
+                <Form.Field
+                  control={form.control}
+                  name="handle"
+                  render={({ field }) => {
+                    return (
+                      <Form.Item>
+                        <Form.Label>{t("fields.handle")}</Form.Label>
+                        <Form.Control>
+                          <div className="relative">
+                            <div className="absolute inset-y-0 left-0 z-10 flex w-8 items-center justify-center border-r">
+                              <Text
+                                className="text-ui-fg-muted"
+                                size="small"
+                                leading="compact"
+                                weight="plus"
+                              >
+                                /
+                              </Text>
+                            </div>
+                            <Input {...field} className="pl-10" />
                           </div>
-                          <Input {...field} className="pl-10" />
-                        </div>
-                      </Form.Control>
-                      <Form.ErrorMessage />
-                    </Form.Item>
-                  );
-                }}
-              />
+                        </Form.Control>
+                        <Form.ErrorMessage />
+                      </Form.Item>
+                    );
+                  }}
+                />
+              </ExtendableFormField>
               {/* <Form.Field
                 control={form.control}
                 name='material'

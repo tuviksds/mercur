@@ -329,7 +329,7 @@ declare module "@mercurjs/dashboard-sdk" {
       listColumnIds: "owner" | "prices" | "status" | "title" | "type"
     }
     "product": {
-      formZones: "create"
+      formZones: "create" | "edit"
       formTabs: { "create": "attributes" | "details" | "organize" | "variants" }
       formFieldIds: "attributes" | "category_id" | "collection_id" | "description" | "discountable" | "globally_available" | "handle" | "media" | "seller_ids" | "sku" | "subtitle" | "tags" | "title" | "type_id"
       displayZones: "general" | "media" | "organize" | "request" | "variants"
