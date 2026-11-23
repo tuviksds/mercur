@@ -36,3 +36,12 @@ export const VIRTUAL_MODULES = [
 export const LAYOUT_PREFERENCES_FILE = "_layouts"
 /** The file-name stem of the legacy host-only navigation overrides. */
 export const NAVIGATION_FILE = "_navigation"
+
+/** Native image formats used when the host does not restrict uploads. */
+export const DEFAULT_IMAGE_FORMATS: Record<string, string[]> = {
+    "image/jpeg": [".jpeg"],
+    "image/png": [".png"],
+    "image/webp": [".webp"],
+    "image/heic": [".heic"],
+    "image/svg+xml": [".svg"],
+}
