@@ -20,6 +20,7 @@ import { useUpdateProductVariant } from "@hooks/api/products"
 import {
   transformNullableFormData,
   transformNullableFormNumber,
+  transformNullableFormValue,
 } from "@lib/form-helpers"
 import { optionalInt } from "@lib/validation"
 
@@ -141,7 +142,7 @@ export const ProductEditVariantForm = ({
           ? cleanedOptions
           : undefined,
         ...nullableData,
-        ...(hasSkuField ? { sku: sku || null } : {}),
+        ...(hasSkuField ? { sku: transformNullableFormValue(sku) } : {}),
       },
       {
         onSuccess: () => {

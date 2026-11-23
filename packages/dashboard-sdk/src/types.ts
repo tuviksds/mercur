@@ -55,7 +55,7 @@ export interface MercurConfig {
      * @default 2_097_152 // 2 MB
      */
     imageLimit?: number;
-    /** Allowed upload MIME types and the extensions shown in validation errors. */
+    /** Vendor product media MIME types and error extensions; Admin keeps its built-in formats. */
     imageFormats?: Record<string, string[]>;
 }
 

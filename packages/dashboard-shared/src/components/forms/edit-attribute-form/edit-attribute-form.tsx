@@ -120,7 +120,9 @@ const EditScopedAttributeForm = ({
 
   const handleSubmit = form.handleSubmit(async (data) => {
     const title =
-      data.title.trim() !== attribute.name ? data.title.trim() : undefined
+      canEditDefinitions && data.title.trim() !== attribute.name
+        ? data.title.trim()
+        : undefined
 
     let payload: ProductAttributeBatchPayload
 
