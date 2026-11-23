@@ -1,5 +1,5 @@
 import { XMarkMini } from "@medusajs/icons"
-import { FormExtensionZone, useCan } from "@mercurjs/dashboard-shared"
+import { FormExtensionZone, useCan, usePermissions } from "@mercurjs/dashboard-shared"
 import {
   Button,
   Heading,
@@ -43,6 +43,8 @@ const Root = () => {
   const { t } = useTranslation()
   const form = useTabbedForm<ProductCreateSchemaType>()
   const { setIsOpen } = useStackedModal()
+  const { isLoading: permissionsLoading } = usePermissions()
+  const canEditDefinitions = useCan("product_attributes", "edit") && !permissionsLoading
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -95,7 +97,7 @@ const Root = () => {
           >
             {t("products.create.attributes.addExisting")}
           </Button>
-          <Button
+          {canEditDefinitions && <Button
             type="button"
             variant="secondary"
             size="small"
@@ -103,14 +105,14 @@ const Root = () => {
             data-testid="product-create-attributes-create-new"
           >
             {t("products.create.attributes.createNew")}
-          </Button>
+          </Button>}
         </div>
 
         {fields.some((f) => !f.is_custom && !!f.attribute_id) && (
           <SelectedAttributes fields={fields} remove={remove} />
         )}
 
-        {fields.some((f) => f.is_custom) && (
+        {canEditDefinitions && fields.some((f) => f.is_custom) && (
           <ul
             className="flex flex-col gap-y-4"
             data-testid="product-create-attributes-list"

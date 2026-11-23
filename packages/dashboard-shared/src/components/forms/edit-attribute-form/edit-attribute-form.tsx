@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
 
+import { useCan, usePermissions } from "../../../permissions"
 import { Form } from "../../common/form"
 import { AttributeValueInput } from "../../inputs/attribute-value-input"
 import { ChipInput } from "../../inputs/chip-input"
@@ -88,6 +89,10 @@ const EditScopedAttributeForm = ({
   const { handleSuccess } = useRouteModal()
 
   const isAxis = isVariantAxis(attribute)
+  const { isLoading: permissionsLoading } = usePermissions()
+  const canEditDefinitions = useCan("product_attributes", "edit") && !permissionsLoading
+  const hasPresetValues = attribute.type === AttributeType.SINGLE_SELECT || attribute.type === AttributeType.MULTI_SELECT
+  const canSubmit = canEditDefinitions || !hasPresetValues
   const currentValues = attribute.values ?? attribute.all_values ?? []
 
   const schema = zod.object({
@@ -152,7 +157,7 @@ const EditScopedAttributeForm = ({
 
   return (
     <RouteDrawer.Form form={form}>
-      <KeyboundForm onSubmit={handleSubmit} className="flex h-full flex-col">
+      <KeyboundForm onSubmit={canSubmit ? handleSubmit : undefined} className="flex h-full flex-col">
         <RouteDrawer.Body>
           <div className="flex flex-col gap-y-4">
             <div className="bg-ui-bg-component shadow-elevation-card-rest rounded-xl p-1.5">
@@ -174,6 +179,7 @@ const EditScopedAttributeForm = ({
                       <Form.Control>
                         <Input
                           {...field}
+                          readOnly={!canEditDefinitions}
                           aria-invalid={fieldState.invalid ? "true" : undefined}
                           className={
                             fieldState.invalid
@@ -202,7 +208,9 @@ const EditScopedAttributeForm = ({
                   render={({ field: { onChange, value }, fieldState }) => (
                     <Form.Item>
                       <Form.Control>
-                        {isAxis ? (
+                        {!canEditDefinitions && hasPresetValues ? (
+                          <div className="text-ui-fg-base txt-small">{currentValues.map((entry) => entry.name).join(", ")}</div>
+                        ) : isAxis ? (
                           <ChipInput
                             variant="contrast"
                             value={Array.isArray(value) ? value : []}
@@ -247,14 +255,14 @@ const EditScopedAttributeForm = ({
                 {t("actions.cancel")}
               </Button>
             </RouteDrawer.Close>
-            <Button
+            {canSubmit && <Button
               size="small"
               type="submit"
               isLoading={isPending}
               data-testid="edit-attribute-submit-button"
             >
               {t("actions.save")}
-            </Button>
+            </Button>}
           </div>
         </RouteDrawer.Footer>
       </KeyboundForm>
