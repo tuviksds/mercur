@@ -1,3 +1,4 @@
+import { ExtendableFormField, useExtension } from "@mercurjs/dashboard-shared"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button, Heading, Input, toast } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
@@ -28,6 +29,8 @@ export const CreateProductVariantForm = ({
 }: CreateProductVariantFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
+  const skuOverride = useExtension().getFormFieldOverride("product_variant", "create", "sku")
+  const hasSkuField = !skuOverride.overridden || skuOverride.field !== null
 
   const { feature_flags } = useFeatureFlags()
   const isProductRequestEnabled =
@@ -77,7 +80,7 @@ export const CreateProductVariantForm = ({
     await mutateAsync(
       {
         title,
-        sku: sku || undefined,
+        ...(hasSkuField ? { sku: sku || undefined } : {}),
         options: Object.keys(cleanedOptions).length
           ? cleanedOptions
           : undefined,
@@ -136,24 +139,26 @@ export const CreateProductVariantForm = ({
                 }}
               />
 
-              <Form.Field
-                control={form.control}
-                name="sku"
-                render={({ field }) => {
-                  return (
-                    <Form.Item>
-                      <Form.Label optional>{t("fields.sku")}</Form.Label>
-                      <Form.Control>
-                        <Input
-                          {...field}
-                          data-testid="create-variant-sku-input"
-                        />
-                      </Form.Control>
-                      <Form.ErrorMessage />
-                    </Form.Item>
-                  )
-                }}
-              />
+              <ExtendableFormField model="product_variant" zone="create" id="sku" control={form.control} data={product}>
+                <Form.Field
+                  control={form.control}
+                  name="sku"
+                  render={({ field }) => {
+                    return (
+                      <Form.Item>
+                        <Form.Label optional>{t("fields.sku")}</Form.Label>
+                        <Form.Control>
+                          <Input
+                            {...field}
+                            data-testid="create-variant-sku-input"
+                          />
+                        </Form.Control>
+                        <Form.ErrorMessage />
+                      </Form.Item>
+                    )
+                  }}
+                />
+              </ExtendableFormField>
 
               {variantAttributes.map((attribute) => {
                 const fieldKey = attribute.handle ?? attribute.id

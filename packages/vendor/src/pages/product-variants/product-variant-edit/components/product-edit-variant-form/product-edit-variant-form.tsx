@@ -1,3 +1,4 @@
+import { ExtendableFormField, useExtension } from "@mercurjs/dashboard-shared"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { InformationCircleSolid } from "@medusajs/icons"
 import { Button, Divider, Heading, Input, Tooltip, toast } from "@medusajs/ui"
@@ -51,6 +52,8 @@ export const ProductEditVariantForm = ({
 }: ProductEditVariantFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
+  const skuOverride = useExtension().getFormFieldOverride("product_variant", "edit", "sku")
+  const hasSkuField = !skuOverride.overridden || skuOverride.field !== null
 
   const { feature_flags } = useFeatureFlags()
   const isProductRequestEnabled =
@@ -104,6 +107,7 @@ export const ProductEditVariantForm = ({
   const handleSubmit = form.handleSubmit(async (data) => {
     const {
       title,
+      sku,
       weight,
       height,
       width,
@@ -137,6 +141,7 @@ export const ProductEditVariantForm = ({
           ? cleanedOptions
           : undefined,
         ...nullableData,
+        ...(hasSkuField ? { sku: sku || null } : {}),
       },
       {
         onSuccess: () => {
@@ -212,21 +217,23 @@ export const ProductEditVariantForm = ({
           <Divider />
           <div className="flex flex-col gap-y-8">
             <div className="flex flex-col gap-y-4">
-              <Form.Field
-                control={form.control}
-                name="sku"
-                render={({ field }) => {
-                  return (
-                    <Form.Item>
-                      <Form.Label optional>{t("fields.sku")}</Form.Label>
-                      <Form.Control>
-                        <Input {...field} />
-                      </Form.Control>
-                      <Form.ErrorMessage />
-                    </Form.Item>
-                  )
-                }}
-              />
+              <ExtendableFormField model="product_variant" zone="edit" id="sku" control={form.control} data={variant}>
+                <Form.Field
+                  control={form.control}
+                  name="sku"
+                  render={({ field }) => {
+                    return (
+                      <Form.Item>
+                        <Form.Label optional>{t("fields.sku")}</Form.Label>
+                        <Form.Control>
+                          <Input {...field} />
+                        </Form.Control>
+                        <Form.ErrorMessage />
+                      </Form.Item>
+                    )
+                  }}
+                />
+              </ExtendableFormField>
               <Form.Field
                 control={form.control}
                 name="ean"
