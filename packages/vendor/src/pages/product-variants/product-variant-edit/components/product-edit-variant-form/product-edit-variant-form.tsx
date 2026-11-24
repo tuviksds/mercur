@@ -20,7 +20,6 @@ import { useUpdateProductVariant } from "@hooks/api/products"
 import {
   transformNullableFormData,
   transformNullableFormNumber,
-  transformNullableFormValue,
 } from "@lib/form-helpers"
 import { optionalInt } from "@lib/validation"
 
@@ -108,7 +107,6 @@ export const ProductEditVariantForm = ({
   const handleSubmit = form.handleSubmit(async (data) => {
     const {
       title,
-      sku,
       weight,
       height,
       width,
@@ -118,6 +116,7 @@ export const ProductEditVariantForm = ({
     } = data
 
     const nullableData = transformNullableFormData(optional)
+    if (!hasSkuField) delete nullableData.sku
 
     // Backend keys options by option title (= attribute name). Form
     // keys by handle/id; remap and drop empties.
@@ -142,7 +141,6 @@ export const ProductEditVariantForm = ({
           ? cleanedOptions
           : undefined,
         ...nullableData,
-        ...(hasSkuField ? { sku: transformNullableFormValue(sku) } : {}),
       },
       {
         onSuccess: () => {
