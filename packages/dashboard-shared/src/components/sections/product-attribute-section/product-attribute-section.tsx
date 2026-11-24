@@ -14,9 +14,10 @@ import {
   Tooltip,
   usePrompt,
 } from "@medusajs/ui";
-import { ProductAttributeDTO } from "@mercurjs/types";
+import { ProductAttributeDTO, WrappedProductAttributeDTO } from "@mercurjs/types";
 import { useTranslation } from "react-i18next";
 
+import { useCan, usePermissions } from "../../../permissions";
 import { ActionMenu } from "../../common/action-menu";
 import { IconAvatar } from "../../common/icon-avatar";
 import { DisplayExtensionZone } from "../../../extensions";
@@ -36,7 +37,7 @@ export type ProductAttributeSectionProps = {
 };
 
 type AttributeActionsProps = {
-  attribute: ProductAttributeDTO;
+  attribute: ProductAttributeDTO & Pick<WrappedProductAttributeDTO, "is_scoped">;
   editHref: string;
   onDelete: (attribute: ProductAttributeDTO) => Promise<void>;
 };
@@ -48,6 +49,8 @@ const AttributeActions = ({
 }: AttributeActionsProps) => {
   const { t } = useTranslation();
   const prompt = usePrompt();
+  const { isLoading: permissionsLoading } = usePermissions();
+  const canEditDefinitions = useCan("product_attributes", "edit") && !permissionsLoading;
 
   const handleDelete = async () => {
     const res = await prompt({
@@ -79,7 +82,7 @@ const AttributeActions = ({
             },
           ],
         },
-        ...(attribute.is_required
+        ...(attribute.is_required || (attribute.is_scoped && !canEditDefinitions)
           ? []
           : [
               {
@@ -253,6 +256,8 @@ export const ProductAttributeSection = ({
 }: ProductAttributeSectionProps) => {
   const { t } = useTranslation();
 
+  const { isLoading: permissionsLoading } = usePermissions();
+  const canEditDefinitions = useCan("product_attributes", "edit") && !permissionsLoading;
   const attributes = product.attributes ?? [];
   const attachedIds = new Set(attributes.map((a) => a.id));
 
@@ -289,12 +294,12 @@ export const ProductAttributeSection = ({
                   permission: "products:edit" as const,
                   icon: <Plus />,
                 },
-                {
+                ...(canEditDefinitions ? [{
                   label: t("products.create.attributes.createNew"),
                   to: createNewHref,
                   permission: "products:edit" as const,
                   icon: <PencilSquare />,
-                },
+                }] : []),
               ],
             },
           ]}
