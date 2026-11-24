@@ -3,6 +3,7 @@ import { AttributeType, ProductAttributeBatchAdd } from "@mercurjs/types"
 import { UseFormReturn } from "react-hook-form"
 import { ProductCreateSchemaType } from "./types"
 
+/** Передаёт выбранные характеристики; служебную опцию простого товара создаёт Core. */
 export const normalizeProductFormValues = (
   values: ProductCreateSchemaType & {
     status: HttpTypes.AdminProductStatus
@@ -13,20 +14,7 @@ export const normalizeProductFormValues = (
     ?.filter((media) => !media.isThumbnail)
     .map((media) => ({ url: media.url }))
 
-  const hasAxis = (values.attributes ?? []).some(
-    (a) => a.use_for_variants && toValueArray(a.values).length > 0
-  )
-
   const attributes = normalizeFormAttributes(values.attributes ?? [])
-
-  if (!hasAxis) {
-    attributes.push({
-      title: "Default Option",
-      type: AttributeType.MULTI_SELECT,
-      values: ["Default"],
-      is_variant_axis: true,
-    })
-  }
 
   return {
     is_giftcard: false,
@@ -55,15 +43,14 @@ export const normalizeProductFormValues = (
     attributes: attributes.length ? attributes : undefined,
     variants: normalizeVariants(
       values.variants.filter((variant) => variant.should_create),
-      hasAxis,
     ),
     ...withAdditionalData(values.additional_data),
   } as any
 }
 
+/** Сохраняет выбранные опции вариантов, оставляя служебные опции штатному Core. */
 export const normalizeVariants = (
   variants: ProductCreateSchemaType["variants"],
-  hasAxis: boolean,
 ): any[] => {
   return variants.map((variant) => {
     const opts = variant.options
@@ -71,7 +58,7 @@ export const normalizeVariants = (
 
     return {
       title: variant.title || (hasOpts ? Object.values(opts).join(" / ") : "Default variant"),
-      options: hasOpts ? opts : hasAxis ? undefined : { "Default Option": "Default" },
+      options: hasOpts ? opts : undefined,
       sku: variant.sku || undefined,
       variant_rank: variant.variant_rank,
       ...withAdditionalData(variant.additional_data),
