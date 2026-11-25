@@ -1,5 +1,5 @@
-import { ExtendableFormField } from "@mercurjs/dashboard-shared"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { ExtendableFormField } from "@mercurjs/dashboard-shared"
 import { InformationCircleSolid } from "@medusajs/icons"
 import { Button, Divider, Heading, Input, Tooltip, toast } from "@medusajs/ui"
 import i18next from "i18next"
