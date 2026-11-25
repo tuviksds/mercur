@@ -154,7 +154,30 @@ forms: [
 
 The overridable field ids are typed per model and autocomplete in your editor.
 Validation of a built-in field stays the built-in schema's. A hidden field keeps
-its default value, so hide a required field only when that default is valid.
+its value in form state, so hide a required field only when that value is valid.
+
+The Vendor's variant forms expose SKU as `product_variant`, in the `create`
+and `edit` zones. For example, a marketplace that manages catalog SKUs through
+an import can hide the input in both forms:
+
+```tsx apps/vendor/src/custom-fields/product-variant.ts
+import { defineCustomFieldsConfig } from "@mercurjs/dashboard-sdk"
+
+export default defineCustomFieldsConfig({
+  model: "product_variant",
+  forms: [
+    { zone: "create", fields: { sku: null } },
+    { zone: "edit", fields: { sku: null } },
+  ],
+})
+```
+
+These zones expose only the built-in SKU input. A replacement receives the
+product as `data` on create and the variant on edit. With `sku: null`, each form
+keeps its own initial value and normal request normalization: no SKU on create,
+the loaded SKU on edit, or `null` if it was empty. A configured `defaultValue` is
+not applied to this field.
+Rendering overrides do not change API permissions or validation.
 
 ### Fields in tabbed create forms
 
