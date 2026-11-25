@@ -1,4 +1,4 @@
-import { ExtendableFormField, useExtension } from "@mercurjs/dashboard-shared"
+import { ExtendableFormField } from "@mercurjs/dashboard-shared"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button, Heading, Input, toast } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
@@ -29,8 +29,6 @@ export const CreateProductVariantForm = ({
 }: CreateProductVariantFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
-  const skuOverride = useExtension().getFormFieldOverride("product_variant", "create", "sku")
-  const hasSkuField = !skuOverride.overridden || skuOverride.field !== null
 
   const { feature_flags } = useFeatureFlags()
   const isProductRequestEnabled =
@@ -80,7 +78,7 @@ export const CreateProductVariantForm = ({
     await mutateAsync(
       {
         title,
-        ...(hasSkuField ? { sku: sku || undefined } : {}),
+        sku: sku || undefined,
         options: Object.keys(cleanedOptions).length
           ? cleanedOptions
           : undefined,
@@ -139,7 +137,13 @@ export const CreateProductVariantForm = ({
                 }}
               />
 
-              <ExtendableFormField model="product_variant" zone="create" id="sku" control={form.control} data={product}>
+              <ExtendableFormField
+                model="product_variant"
+                zone="create"
+                id="sku"
+                control={form.control}
+                data={product}
+              >
                 <Form.Field
                   control={form.control}
                   name="sku"
